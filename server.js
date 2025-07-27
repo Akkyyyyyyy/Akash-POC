@@ -1,10 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import { dbConnection } from './utils/db.js';
-import { configDotenv } from 'dotenv';
+import dotenv from 'dotenv';
 import { userRoute } from './routes/user.route.js';
 
-configDotenv(); 
+dotenv.config();
+console.log("Loaded SECRET_KEY:", process.env.SECRET_KEY); // 🔍 Add this
+
+
 
 const app = express();
 
@@ -15,4 +18,10 @@ app.use(express.json());
 
 app.use('/user',userRoute)
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const HOST = '0.0.0.0'; // Listen on all network interfaces
+
+app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
+    console.log(`Local access: http://localhost:${PORT}`);
+    console.log(`Network access: http://192.168.12.4:${PORT}`);
+});
