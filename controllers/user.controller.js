@@ -237,3 +237,70 @@ export const logout = async (_, res) => {
     });
   }
 }
+
+export const getTodaysRegistrations = async (req, res) => {
+  try {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    const count = await User.countDocuments({
+      createdAt: { $gte: start, $lte: end }
+    });
+
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// 2. Total registrations by period (week, month, year)
+export const getRegistrationsByPeriod = async (req, res) => {
+  try {
+    const { period } = req.query; // 'week', 'month', 'year'
+    let start = new Date();
+
+    if (period === 'week') {
+      start.setDate(start.getDate() - 7);
+    } else if (period === 'month') {
+      start.setMonth(start.getMonth() - 1);
+    } else if (period === 'year') {
+      start.setFullYear(start.getFullYear() - 1);
+    } else {
+      // Default: all time
+      start = new Date(0);
+    }
+
+    const count = await User.countDocuments({
+      createdAt: { $gte: start }
+    });
+
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// 3. Gender pie chart data
+export const getGenderDistribution = async (req, res) => {
+  try {
+    const genders = await User.aggregate([
+      {
+        $group: {
+          _id: "$gender",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    // Format as { male: X, female: Y }
+    const result = {};
+    genders.forEach(g => {
+      result[g._id] = g.count;
+    });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
