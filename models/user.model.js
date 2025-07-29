@@ -14,7 +14,8 @@ const userSchema = new mongoose.Schema({
         unique: true,
         lowercase: true,
         trim: true,
-        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email address']
+        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email address'],
+        unique: true
     },
     password:{
         type: String,
@@ -35,7 +36,8 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Phone number is required'],
         unique: true,
         trim: true,
-        match: [/^\d{10}$/, 'Phone number must be exactly 10 digits']
+        match: [/^\d{10}$/, 'Phone number must be exactly 10 digits'],
+        unique: true
     },
     dob:{
         type: Date,
@@ -62,12 +64,19 @@ const userSchema = new mongoose.Schema({
     otpExpires: {
         type: Date,
         required: false
+    },
+    verified:{
+        type: Boolean,
+        default: false
+    },
+    resetPasswordToken: { 
+        type: String
+    },
+    resetPasswordExpires: { 
+        type: Date
     }
-
 },{timestamps:true});
 
-// Create indexes for better performance
-userSchema.index({ email: 1 });
-userSchema.index({ phone: 1 });
+
 
 export const User = mongoose.model('User', userSchema);
